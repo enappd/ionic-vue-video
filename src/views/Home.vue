@@ -25,7 +25,8 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonImg, IonButton, IonRouter, } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router';
-import { Plugins, CameraResultType, CameraSource, FilesystemDirectory } from '@capacitor/core';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 
 export default defineComponent({
@@ -41,8 +42,11 @@ export default defineComponent({
     IonImg,
   },
   methods: {
+    async Clear() {
+      this.imageUrl = '';
+      this.render = false;
+    },
     async ClickImage() {
-      const { Camera } = Plugins;
       await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
@@ -63,7 +67,6 @@ export default defineComponent({
       });
     },
     async Save() {
-      const {Filesystem} = Plugins;
         const response = await fetch(this.imageUrl);
         const blob = await response.blob();
         const base64Data = await this.convertBlobToBase64(blob) as string;
@@ -71,7 +74,7 @@ export default defineComponent({
         const savedFile = await Filesystem.writeFile({
             path: new Date().getTime() + '.jpeg',
             data: base64Data,
-            directory: FilesystemDirectory.Data
+            directory: Directory.Documents
       });
     }
   }
